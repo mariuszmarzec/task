@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".ui.hello.HelloActivity">
 
-    <fragment android:name="marzec.pl.daggerexample.ui.hello.HelloFragment"
+    <fragment android:name="com.marzec.ui.main.ConverterFragment"
         android:id="@+id/hello_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

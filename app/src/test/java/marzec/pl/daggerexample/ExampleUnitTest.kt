@@ -1,4 +1,4 @@
-package marzec.pl.daggerexample
+package marzec.pl
 
 import org.junit.Test
 

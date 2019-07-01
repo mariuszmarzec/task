@@ -1,7 +1,7 @@
-package marzec.pl.daggerexample.di
+package com.marzec.di
 
 import javax.inject.Scope
 
 @Scope
 @Retention(AnnotationRetention.RUNTIME)
-annotation class FragmentScope
+annotation class ActivityScope

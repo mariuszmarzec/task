@@ -1,9 +1,9 @@
-package marzec.pl.daggerexample.di
+package com.marzec.di
 
 import dagger.*
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
-import marzec.pl.daggerexample.App
+import com.marzec.App
 import javax.inject.Singleton
 
 

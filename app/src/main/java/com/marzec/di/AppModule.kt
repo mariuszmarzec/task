@@ -1,9 +1,9 @@
-package marzec.pl.daggerexample.di
+package com.marzec.di
 
 import android.content.Context
 import dagger.Binds
 import dagger.Module
-import marzec.pl.daggerexample.App
+import com.marzec.App
 
 @Module
 interface AppModule {
