@@ -1,14 +1,19 @@
 package com.marzec.di
 
-import dagger.*
+import com.marzec.App
+import dagger.Component
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
-import com.marzec.App
 import javax.inject.Singleton
 
 
 @Singleton
-@Component(modules = [AndroidSupportInjectionModule::class, AppModule::class, ActivityBuilder::class])
+@Component(modules = [
+    AndroidSupportInjectionModule::class,
+    AppModule::class,
+    ActivityBuilder::class,
+    ApiModule::class
+])
 interface AppComponent : AndroidInjector<App> {
 
     @Component.Factory

@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import com.marzec.R
 import dagger.android.support.AndroidSupportInjection
 
-class ConverterFragment : Fragment() {
+class ConverterFragment : Fragment(), ConverterContract.View {
 
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
@@ -20,7 +20,4 @@ class ConverterFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_converter, container, false)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-    }
 }
