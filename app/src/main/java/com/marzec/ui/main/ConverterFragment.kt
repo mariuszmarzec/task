@@ -26,6 +26,7 @@ class ConverterFragment : BaseFragment(), ConverterContract.View {
         super.onViewCreated(view, savedInstanceState)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = ConverterAdapter().also { converterAdapter = it }
+        converterAdapter.onRateClickListener = { presenter.setBaseCurrency(it) }
     }
 
     override fun onResume() {

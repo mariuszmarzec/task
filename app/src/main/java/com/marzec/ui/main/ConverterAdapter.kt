@@ -1,5 +1,6 @@
 package com.marzec.ui.main
 
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.marzec.base.BaseViewHolder
@@ -7,8 +8,11 @@ import com.marzec.common.NotifyingRecyclerAdapterDelegate
 import com.marzec.model.Rate
 import com.marzec.view.RateView
 
+typealias OnRateClickListener = (Rate) -> Unit
+
 class ConverterAdapter() : RecyclerView.Adapter<BaseViewHolder>() {
 
+    var onRateClickListener: OnRateClickListener? = null
     var rates: List<Rate> by NotifyingRecyclerAdapterDelegate(emptyList())
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
@@ -26,8 +30,15 @@ class ConverterAdapter() : RecyclerView.Adapter<BaseViewHolder>() {
 
     private inner class RateViewHolder(private val rateView: RateView) : BaseViewHolder(rateView) {
 
+        val onClickListener = View.OnClickListener {
+            if (adapterPosition > 1) {
+                onRateClickListener?.invoke(rates[adapterPosition])
+            }
+        }
+
         override fun onBind(position: Int) {
             rateView.bind(rates[position])
+            rateView.setOnClickListener(onClickListener)
         }
     }
 }

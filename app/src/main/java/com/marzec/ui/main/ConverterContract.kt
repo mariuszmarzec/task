@@ -12,6 +12,7 @@ interface ConverterContract {
 
     interface Presenter : BasePresenter<View> {
         fun load()
+        fun setBaseCurrency(rate: Rate)
 
     }
 }

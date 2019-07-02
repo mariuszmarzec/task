@@ -31,4 +31,8 @@ class ConverterPresenter @Inject constructor(
                 .ioTransform()
                 .subscribe({ view?.showRates(it) }, { Log.d("ERROR", it.message, it) })
     }
+
+    override fun setBaseCurrency(rate: Rate) {
+        converterUseCase.setArg(rate)
+    }
 }
