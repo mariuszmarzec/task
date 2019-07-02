@@ -17,5 +17,6 @@ class ConverterPresenter @Inject constructor(
 
     override fun detach() {
         disposable?.dispose()
+        view = null
     }
 }
