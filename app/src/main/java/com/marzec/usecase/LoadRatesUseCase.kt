@@ -5,6 +5,7 @@ import com.marzec.model.Rate
 import com.marzec.repository.ConverterRepository
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
+import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -13,7 +14,7 @@ class LoadRatesUseCase @Inject constructor(
         private val converterRepository: ConverterRepository
 ) : BaseUseCase<Rate, List<Rate>> {
 
-    private val currentBase = PublishSubject.create<Rate>()
+    private val currentBase = BehaviorSubject.create<Rate>()
 
     override fun setArg(arg: Rate) {
         currentBase.onNext(arg)

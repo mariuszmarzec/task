@@ -5,6 +5,7 @@ import com.marzec.model.Rate
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.functions.BiFunction
+import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
@@ -12,7 +13,7 @@ class CurrencyConverterUseCase @Inject constructor(
         private val loadRatesUseCase: LoadRatesUseCase
 ) : BaseUseCase<Rate, List<Rate>> {
 
-    private val currentBase = PublishSubject.create<Rate>()
+    private val currentBase = BehaviorSubject.create<Rate>()
 
     override fun setArg(arg: Rate) {
         currentBase.onNext(arg)

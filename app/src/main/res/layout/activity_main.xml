@@ -9,6 +9,6 @@
         android:id="@+id/fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        class="com.marzec.ui.main.Con" />
+        class="com.marzec.ui.main.ConverterFragment" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
