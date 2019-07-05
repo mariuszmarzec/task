@@ -7,8 +7,6 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.PublishSubject
-import java.math.MathContext
 import java.math.RoundingMode
 import javax.inject.Inject
 
@@ -36,10 +34,18 @@ class CurrencyConverterUseCase @Inject constructor(
             } else {
                 previous
             }
-            val sortedByDescending = converted.sortedByDescending {
-                if (it.code == newBase.code) 1 else 0
+            val rateOrder = previous
+                    .ifEmpty { listOf(newBase) }
+                    .mapIndexed { index, rate ->
+                        rate.code to index
+                    }.toMap()
+            converted.sortedBy {
+                if (it.code == newBase.code) {
+                    Int.MIN_VALUE
+                } else {
+                    rateOrder[it.code] ?: Int.MAX_VALUE
+                }
             }
-            sortedByDescending
         })
     }
 }
