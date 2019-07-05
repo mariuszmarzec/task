@@ -31,7 +31,7 @@ class ConverterAdapter() : RecyclerView.Adapter<BaseViewHolder>() {
     private inner class RateViewHolder(private val rateView: RateView) : BaseViewHolder(rateView) {
 
         val onClickListener = View.OnClickListener {
-            if (adapterPosition > 1) {
+            if (adapterPosition > 0) {
                 onRateClickListener?.invoke(rates[adapterPosition])
             }
         }

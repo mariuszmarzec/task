@@ -1,6 +1,8 @@
 package com.marzec.model
 
+import java.math.BigDecimal
+
 data class Rate(
         val code: String,
-        val value: Double
+        val value: BigDecimal
 )

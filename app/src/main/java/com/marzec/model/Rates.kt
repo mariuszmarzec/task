@@ -1,3 +1,3 @@
 package com.marzec.model
 
-data class Rates(val currencies: Map<String, Double>)
+data class Rates(val base: Rate, val currencies: List<Rate>)
