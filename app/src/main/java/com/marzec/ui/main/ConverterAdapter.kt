@@ -10,10 +10,14 @@ import com.marzec.view.RateView
 
 typealias OnRateClickListener = (Rate) -> Unit
 
-class ConverterAdapter() : RecyclerView.Adapter<BaseViewHolder>() {
+class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
 
     var onRateClickListener: OnRateClickListener? = null
     var rates: List<Rate> by NotifyingRecyclerAdapterDelegate(emptyList())
+
+    init {
+        setHasStableIds(true)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return RateViewHolder(RateView(parent.context).apply { layoutParams = ViewGroup.LayoutParams(
@@ -23,6 +27,10 @@ class ConverterAdapter() : RecyclerView.Adapter<BaseViewHolder>() {
     }
 
     override fun getItemCount() = rates.size
+
+    override fun getItemId(position: Int): Long {
+        return rates[position].code.hashCode().toLong()
+    }
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         holder.onBind(position)
