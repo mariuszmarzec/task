@@ -1,12 +1,14 @@
 package com.marzec.ui.main
 
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.marzec.R
 import com.marzec.base.BaseViewHolder
 import com.marzec.common.NotifyingRecyclerAdapterDelegate
 import com.marzec.model.Rate
-import com.marzec.view.RateView
+import kotlinx.android.synthetic.main.view_rate.view.*
 
 typealias OnRateClickListener = (Rate) -> Unit
 
@@ -20,10 +22,8 @@ class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
-        return RateViewHolder(RateView(parent.context).apply { layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        ) })
+        val inflater = LayoutInflater.from(parent.context)
+        return RateViewHolder(inflater.inflate(R.layout.view_rate, parent, false))
     }
 
     override fun getItemCount() = rates.size
@@ -36,7 +36,7 @@ class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
         holder.onBind(position)
     }
 
-    private inner class RateViewHolder(private val rateView: RateView) : BaseViewHolder(rateView) {
+    private inner class RateViewHolder(private val rateView: View) : BaseViewHolder(rateView) {
 
         val onClickListener = View.OnClickListener {
             if (adapterPosition > 0) {
@@ -45,7 +45,9 @@ class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
         }
 
         override fun onBind(position: Int) {
-            rateView.bind(rates[position])
+            val rate = rates[position]
+            rateView.rateCode.text = rate.code
+            rateView.rateValue.setText("${rate.value}")
             rateView.setOnClickListener(onClickListener)
         }
     }
