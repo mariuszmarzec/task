@@ -7,14 +7,19 @@ import androidx.recyclerview.widget.RecyclerView
 import com.marzec.R
 import com.marzec.base.BaseViewHolder
 import com.marzec.common.NotifyingRecyclerAdapterDelegate
+import com.marzec.common.OnTextChangeInteractionListener
+import com.marzec.common.OnTextChangeListener
 import com.marzec.model.Rate
 import kotlinx.android.synthetic.main.view_rate.view.*
+import java.math.BigDecimal
 
 typealias OnRateClickListener = (Rate) -> Unit
+typealias OnBaseRateValueChangeListener = (Rate) -> Unit
 
 class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
 
     var onRateClickListener: OnRateClickListener? = null
+    var onBaseRateValueChangeListener: OnBaseRateValueChangeListener? = null
     var rates: List<Rate> by NotifyingRecyclerAdapterDelegate(emptyList())
 
     init {
@@ -44,11 +49,26 @@ class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
             }
         }
 
+        val onValueListener = OnTextChangeInteractionListener(object : OnTextChangeListener() {
+            override fun onAfterTextChange(text: String) {
+                if (adapterPosition == 0) {
+                    val newBase = rates[adapterPosition].copy(value = BigDecimal(text))
+                    onBaseRateValueChangeListener?.invoke(newBase)
+                }
+            }
+        })
+
+        init {
+            rateView.setOnClickListener(onClickListener)
+        }
+
         override fun onBind(position: Int) {
             val rate = rates[position]
             rateView.rateCode.text = rate.code
             rateView.rateValue.setText("${rate.value}")
-            rateView.setOnClickListener(onClickListener)
+            rateView.rateValue.isEnabled = position == 0
+            rateView.rateValue.setOnTouchListener(onValueListener)
+            rateView.rateValue.addTextChangedListener(onValueListener)
         }
     }
 }
