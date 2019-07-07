@@ -1,15 +1,17 @@
 package com.marzec.ui.main
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.marzec.R
 import com.marzec.base.BaseViewHolder
-import com.marzec.common.NotifyingRecyclerAdapterDelegate
-import com.marzec.common.OnTextChangeInteractionListener
 import com.marzec.common.OnTextChangeListener
+import com.marzec.common.RateDiffUtil
 import com.marzec.model.Rate
+import com.marzec.model.RateViewItem
 import kotlinx.android.synthetic.main.view_rate.view.*
 import java.math.BigDecimal
 
@@ -20,7 +22,14 @@ class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
 
     var onRateClickListener: OnRateClickListener? = null
     var onBaseRateValueChangeListener: OnBaseRateValueChangeListener? = null
-    var rates: List<Rate> by NotifyingRecyclerAdapterDelegate(emptyList())
+    var rates: List<RateViewItem> = emptyList()
+        set(value) {
+            val old = field
+            val dataClassDiffUtil = RateDiffUtil(old, value)
+            val diffResult = DiffUtil.calculateDiff(dataClassDiffUtil, true)
+            diffResult.dispatchUpdatesTo(this)
+            field = value
+        }
 
     init {
         setHasStableIds(true)
@@ -41,22 +50,31 @@ class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
         holder.onBind(position)
     }
 
+    override fun onBindViewHolder(holder: BaseViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty()) {
+            holder.onBind(position, payloads.first() as Bundle)
+        } else {
+            super.onBindViewHolder(holder, position, payloads)
+        }
+    }
+
     private inner class RateViewHolder(private val rateView: View) : BaseViewHolder(rateView) {
 
         val onClickListener = View.OnClickListener {
             if (adapterPosition > 0) {
-                onRateClickListener?.invoke(rates[adapterPosition])
+                onRateClickListener?.invoke(rates[adapterPosition].toRate())
             }
         }
 
-        val onValueListener = OnTextChangeInteractionListener(object : OnTextChangeListener() {
+        val onValueListener = object : OnTextChangeListener() {
             override fun onAfterTextChange(text: String) {
                 if (adapterPosition == 0) {
-                    val newBase = rates[adapterPosition].copy(value = BigDecimal(text))
+                    val rate = rates[adapterPosition]
+                    val newBase = Rate(rate.code, BigDecimal(text))
                     onBaseRateValueChangeListener?.invoke(newBase)
                 }
             }
-        })
+        }
 
         init {
             rateView.setOnClickListener(onClickListener)
@@ -64,11 +82,28 @@ class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
 
         override fun onBind(position: Int) {
             val rate = rates[position]
+            rateView.rateValue.removeTextChangedListener(onValueListener)
             rateView.rateCode.text = rate.code
-            rateView.rateValue.setText("${rate.value}")
-            rateView.rateValue.isEnabled = position == 0
-            rateView.rateValue.setOnTouchListener(onValueListener)
+            if (rateView.rateValue.text.toString() != rate.value) {
+                rateView.rateValue.setText(rate.value)
+            }
+            rateView.rateValue.isEnabled = rate.editable
             rateView.rateValue.addTextChangedListener(onValueListener)
+        }
+
+        override fun onBind(position: Int, payloadChange: Bundle) {
+            val value = payloadChange.getString(RateDiffUtil.KEY_VALUE)
+            val enabled = payloadChange.getBoolean(RateDiffUtil.KEY_ENABLED)
+            val code = payloadChange.getString(RateDiffUtil.KEY_CODE).orEmpty()
+            with(itemView.rateValue) {
+                removeTextChangedListener(onValueListener)
+                isEnabled = enabled
+                if (rateView.rateValue.text.toString() != value) {
+                    value?.let { setText(it) }
+                }
+                addTextChangedListener(onValueListener)
+            }
+            itemView.rateCode.text = code
         }
     }
 }

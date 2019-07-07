@@ -3,6 +3,7 @@ package com.marzec.ui.main
 import android.util.Log
 import com.marzec.extensions.ioTransform
 import com.marzec.model.Rate
+import com.marzec.model.RateViewItem
 import com.marzec.usecase.CurrencyConverterUseCase
 import io.reactivex.disposables.Disposable
 import java.math.BigDecimal
@@ -28,10 +29,18 @@ class ConverterPresenter @Inject constructor(
 
     override fun load() {
         converterUseCase.setArg(defaultRate)
-        disposable = converterUseCase.get()
+        disposable = loadCurrencies()
                 .ioTransform()
                 .subscribe({ view?.showRates(it) }, { Log.d("ERROR", it.message, it) })
     }
+
+    private fun loadCurrencies() =
+            converterUseCase.get()
+                    .map { rates ->
+                        rates.mapIndexed { index, rate ->
+                            RateViewItem(rate.code, "${rate.value}", index == 0)
+                        }
+                    }
 
     override fun setBaseCurrency(rate: Rate) {
         converterUseCase.setArg(rate)

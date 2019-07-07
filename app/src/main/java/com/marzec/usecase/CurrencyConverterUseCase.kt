@@ -7,6 +7,7 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.BehaviorSubject
+import java.math.BigDecimal
 import java.math.RoundingMode
 import javax.inject.Inject
 
@@ -27,12 +28,21 @@ class CurrencyConverterUseCase @Inject constructor(
                 loadRatesUseCase.get(), BiFunction { base: Rate, rates: Rates ->
             Pair(base, rates)
         }).scan(emptyList(), BiFunction { previous, (newBase, rates) ->
-            val converted = if (rates.base.code == newBase.code) {
-                rates.currencies.map {
-                    Rate(it.code, (newBase.value * it.value).setScale(2, RoundingMode.HALF_UP))
+            val newBaseRatioToOldBase = rates.currencies.firstOrNull {
+                newBase.code == it.code
+            }
+            val converted = if (rates.base.code != newBase.code && newBaseRatioToOldBase != null) {
+                rates.currencies.map { rate ->
+                    if (rate.code == newBase.code) {
+                        newBase.copy()
+                    } else {
+                        Rate(rate.code, (newBase.value / newBaseRatioToOldBase.value * rate.value).round())
+                    }
                 }
             } else {
-                previous
+                rates.currencies.map {
+                    Rate(it.code, (newBase.value * it.value).round())
+                }
             }
             val rateOrder = previous
                     .ifEmpty { listOf(newBase) }
@@ -48,4 +58,6 @@ class CurrencyConverterUseCase @Inject constructor(
             }
         })
     }
+
+    private fun BigDecimal.round() = setScale(2, RoundingMode.HALF_UP)
 }

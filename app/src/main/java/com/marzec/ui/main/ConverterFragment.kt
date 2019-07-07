@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.marzec.R
 import com.marzec.base.BaseFragment
-import com.marzec.model.Rate
+import com.marzec.model.RateViewItem
 import kotlinx.android.synthetic.main.fragment_converter.*
 import javax.inject.Inject
 
@@ -36,7 +36,7 @@ class ConverterFragment : BaseFragment(), ConverterContract.View {
         presenter.load()
     }
 
-    override fun showRates(rates: List<Rate>) {
+    override fun showRates(rates: List<RateViewItem>) {
         converterAdapter.rates = rates
     }
 
