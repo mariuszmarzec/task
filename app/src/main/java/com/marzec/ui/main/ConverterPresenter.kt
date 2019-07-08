@@ -14,7 +14,8 @@ class ConverterPresenter @Inject constructor(
         private val converterUseCase: CurrencyConverterUseCase
 ) : ConverterContract.Presenter {
 
-    private val defaultRate = Rate("EUR", BigDecimal.valueOf(1))
+    private var defaultRate = Rate("EUR", BigDecimal.valueOf(1))
+    private var baseRate: Rate? = null
 
     private var disposable: Disposable? = null
     private var view: ConverterContract.View? = null
@@ -29,10 +30,13 @@ class ConverterPresenter @Inject constructor(
     }
 
     override fun load() {
-        converterUseCase.setArg(defaultRate)
         disposable = loadCurrencies()
                 .ioTransform()
                 .subscribe({ view?.showRates(it) }, { Log.d("ERROR", it.message, it) })
+        if (baseRate == null) {
+            baseRate = defaultRate
+        }
+        baseRate?.let { converterUseCase.setArg(it) }
     }
 
     private fun loadCurrencies() =
@@ -49,6 +53,7 @@ class ConverterPresenter @Inject constructor(
                     }
 
     override fun setBaseCurrency(rate: Rate) {
+        baseRate = rate
         converterUseCase.setArg(rate)
     }
 }

@@ -6,6 +6,8 @@ import com.marzec.model.Rates
 import com.marzec.repository.ConverterRepository
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
+import io.reactivex.Scheduler
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
@@ -23,8 +25,9 @@ class LoadRatesUseCase @Inject constructor(
 
     override fun get(): Flowable<Rates> {
         return currentBase.toFlowable(BackpressureStrategy.LATEST).switchMap { rate ->
-            Flowable.interval(1, TimeUnit.SECONDS).switchMap {
+            Flowable.interval(1, TimeUnit.SECONDS).startWith(0).switchMap {
                 converterRepository.getRates(rate.code).toFlowable()
+                        .subscribeOn(Schedulers.io())
             }
         }
     }
