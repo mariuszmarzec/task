@@ -1,5 +1,6 @@
 package com.marzec.model
 
+import com.marzec.extensions.toBigDecimal
 import java.math.BigDecimal
 
 data class RateViewItem(
@@ -8,6 +9,6 @@ data class RateViewItem(
         val editable: Boolean
 ) {
     fun toRate(): Rate {
-        return Rate(code, BigDecimal(value))
+        return Rate(code, value.toBigDecimal(BigDecimal("0")))
     }
 }

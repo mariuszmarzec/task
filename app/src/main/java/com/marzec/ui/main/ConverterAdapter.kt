@@ -10,6 +10,7 @@ import com.marzec.R
 import com.marzec.base.BaseViewHolder
 import com.marzec.common.OnTextChangeListener
 import com.marzec.common.RateDiffUtil
+import com.marzec.extensions.toBigDecimal
 import com.marzec.model.Rate
 import com.marzec.model.RateViewItem
 import kotlinx.android.synthetic.main.view_rate.view.*
@@ -70,7 +71,7 @@ class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
             override fun onAfterTextChange(text: String) {
                 if (adapterPosition == 0) {
                     val rate = rates[adapterPosition]
-                    val newBase = Rate(rate.code, BigDecimal(text))
+                    val newBase = Rate(rate.code, text.toBigDecimal(BigDecimal("0")))
                     onBaseRateValueChangeListener?.invoke(newBase)
                 }
             }

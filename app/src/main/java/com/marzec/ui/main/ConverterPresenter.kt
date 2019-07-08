@@ -7,6 +7,8 @@ import com.marzec.model.RateViewItem
 import com.marzec.usecase.CurrencyConverterUseCase
 import io.reactivex.disposables.Disposable
 import java.math.BigDecimal
+import java.text.DecimalFormat
+import java.text.NumberFormat
 import javax.inject.Inject
 
 class ConverterPresenter @Inject constructor(
@@ -37,8 +39,13 @@ class ConverterPresenter @Inject constructor(
     private fun loadCurrencies() =
             converterUseCase.get()
                     .map { rates ->
+                        val df = DecimalFormat().apply {
+                            maximumFractionDigits = 2
+                            minimumFractionDigits = 0
+                            isGroupingUsed = false
+                        }
                         rates.mapIndexed { index, rate ->
-                            RateViewItem(rate.code, "${rate.value}", index == 0)
+                            RateViewItem(rate.code, df.format(rate.value), index == 0)
                         }
                     }
 
