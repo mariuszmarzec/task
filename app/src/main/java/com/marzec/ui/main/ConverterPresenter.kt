@@ -8,7 +8,6 @@ import com.marzec.usecase.CurrencyConverterUseCase
 import io.reactivex.disposables.Disposable
 import java.math.BigDecimal
 import java.text.DecimalFormat
-import java.text.NumberFormat
 import javax.inject.Inject
 
 class ConverterPresenter @Inject constructor(

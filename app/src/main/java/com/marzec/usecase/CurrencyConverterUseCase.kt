@@ -31,32 +31,38 @@ class CurrencyConverterUseCase @Inject constructor(
             val newBaseRatioToOldBase = rates.currencies.firstOrNull {
                 newBase.code == it.code
             }
-            val converted = if (rates.base.code != newBase.code && newBaseRatioToOldBase != null) {
-                rates.currencies.map { rate ->
+            rates.currencies
+                    .calcRates(newBase, rates.base, newBaseRatioToOldBase)
+                    .sortBasedOnPreviousOrder(newBase, previous)
+        })
+    }
+
+    private fun List<Rate>.calcRates(newBase: Rate, loadedBase: Rate, newBaseRatioToLoadedBase: Rate?) =
+            if (loadedBase.code != newBase.code && newBaseRatioToLoadedBase != null) {
+                map { rate ->
                     if (rate.code == newBase.code) {
                         newBase.copy()
                     } else {
-                        Rate(rate.code, (newBase.value / newBaseRatioToOldBase.value * rate.value).round())
+                        rate.copy(value = (newBase.value / newBaseRatioToLoadedBase.value * rate.value).round())
                     }
                 }
             } else {
-                rates.currencies.map {
-                    Rate(it.code, (newBase.value * it.value).round())
-                }
+                map { it.copy(value = (newBase.value * it.value).round()) }
             }
-            val rateOrder = previous
-                    .ifEmpty { listOf(newBase) }
-                    .mapIndexed { index, rate ->
-                        rate.code to index
-                    }.toMap()
-            converted.sortedBy {
-                if (it.code == newBase.code) {
-                    Int.MIN_VALUE
-                } else {
-                    rateOrder[it.code] ?: Int.MAX_VALUE
-                }
+
+    private fun List<Rate>.sortBasedOnPreviousOrder(newBase: Rate, previous: List<Rate>): List<Rate> {
+        val rateOrder = previous
+                .ifEmpty { listOf(newBase) }
+                .mapIndexed { index, rate ->
+                    rate.code to index
+                }.toMap()
+        return sortedBy {
+            if (it.code == newBase.code) {
+                Int.MIN_VALUE
+            } else {
+                rateOrder[it.code] ?: Int.MAX_VALUE
             }
-        })
+        }
     }
 
     private fun BigDecimal.round() = setScale(2, RoundingMode.HALF_UP)
