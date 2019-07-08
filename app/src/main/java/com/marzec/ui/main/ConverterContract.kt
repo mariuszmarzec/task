@@ -8,6 +8,7 @@ interface ConverterContract {
 
     interface View {
         fun showRates(rates: List<RateViewItem>)
+        fun showError()
 
     }
 

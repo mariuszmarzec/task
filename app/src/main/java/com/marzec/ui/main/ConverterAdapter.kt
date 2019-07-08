@@ -95,7 +95,7 @@ class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
         override fun onBind(position: Int, payloadChange: Bundle) {
             val value = payloadChange.getString(RateDiffUtil.KEY_VALUE)
             val enabled = payloadChange.getBoolean(RateDiffUtil.KEY_ENABLED)
-            val code = payloadChange.getString(RateDiffUtil.KEY_CODE).orEmpty()
+            val code = payloadChange.getString(RateDiffUtil.KEY_CODE)
             with(itemView.rateValue) {
                 removeTextChangedListener(onValueListener)
                 isEnabled = enabled
@@ -104,7 +104,7 @@ class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
                 }
                 addTextChangedListener(onValueListener)
             }
-            itemView.rateCode.text = code
+            code?.let { itemView.rateCode.text = it }
         }
     }
 }

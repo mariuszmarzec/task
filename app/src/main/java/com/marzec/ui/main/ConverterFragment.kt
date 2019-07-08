@@ -9,7 +9,9 @@ import com.marzec.R
 import com.marzec.base.BaseFragment
 import com.marzec.model.RateViewItem
 import kotlinx.android.synthetic.main.fragment_converter.*
+import org.jetbrains.anko.alert
 import javax.inject.Inject
+
 
 class ConverterFragment : BaseFragment(), ConverterContract.View {
 
@@ -38,6 +40,20 @@ class ConverterFragment : BaseFragment(), ConverterContract.View {
 
     override fun showRates(rates: List<RateViewItem>) {
         converterAdapter.rates = rates
+    }
+
+    override fun showError() {
+        context?.alert(R.string.dialog_message_error_occurred, R.string.dialog_title_error) {
+            positiveButton(R.string.button_try_again) {
+                it.dismiss()
+                presenter.load()
+            }
+            negativeButton(R.string.button_exit_app) {
+                activity?.finish()
+            }
+            isCancelable = false
+            show()
+        }
     }
 
     override fun onPause() {

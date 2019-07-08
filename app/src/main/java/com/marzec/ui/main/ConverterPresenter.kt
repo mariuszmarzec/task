@@ -32,7 +32,12 @@ class ConverterPresenter @Inject constructor(
     override fun load() {
         disposable = loadCurrencies()
                 .ioTransform()
-                .subscribe({ view?.showRates(it) }, { Log.d("ERROR", it.message, it) })
+                .subscribe(
+                        { view?.showRates(it) },
+                        {
+                            Log.d(ConverterPresenter::class.java.simpleName, it.message, it)
+                            view?.showError()
+                        })
         if (baseRate == null) {
             baseRate = defaultRate
         }

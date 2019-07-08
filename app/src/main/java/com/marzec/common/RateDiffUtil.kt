@@ -26,7 +26,7 @@ class RateDiffUtil(
         val new = newItems[newItemPosition]
         return Bundle().apply {
             putBoolean(KEY_ENABLED, new.editable)
-            putString(KEY_CODE, new.code)
+            if (new.code != old.code) putString(KEY_CODE, new.code)
             if (new.value != old.value) putString(KEY_VALUE, new.value)
         }
     }

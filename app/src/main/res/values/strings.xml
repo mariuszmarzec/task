@@ -1,5 +1,8 @@
 <resources>
-    <string name="app_name">DaggerExample</string>
-    <string name="hello_world">Hello World!</string>
+    <string name="app_name">Currency Converter</string>
     <string name="rate_view_value_hint">0</string>
+    <string name="dialog_message_error_occurred">Error has occurred. Try again later.</string>
+    <string name="dialog_title_error">Error!</string>
+    <string name="button_try_again">try again</string>
+    <string name="button_exit_app">Exit application</string>
 </resources>
