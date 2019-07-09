@@ -8,6 +8,9 @@ buildscript {
     ext.okhttp_version = '4.0.0'
     ext.rxandroid_version = '2.1.1'
     ext.anko_version = '0.10.8'
+    ext.junit5_version = '5.5.0'
+    ext.mockito_version = '2.28.2'
+    ext.mockito_kotlin_version = '2.1.0'
     repositories {
         google()
         jcenter()
@@ -15,6 +18,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:3.3.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "de.mannodermaus.gradle.plugins:android-junit5:1.4.2.1"
     }
 }
 

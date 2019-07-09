@@ -17,7 +17,7 @@ class ConverterRepository @Inject constructor(
             val base = Rate(code, BigDecimal.valueOf(1))
             Rates(base, listOf(base) + resource.rates?.entries?.mapNotNull {
                 whenNotNull(it.key, it.value) { key, value ->
-                    Rate(key, BigDecimal.valueOf(value))
+                    if (key.isNotEmpty()) Rate(key, BigDecimal.valueOf(value)) else null
                 }
             }.orEmpty())
         }
