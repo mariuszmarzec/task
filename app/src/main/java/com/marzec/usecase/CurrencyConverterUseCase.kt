@@ -44,11 +44,11 @@ class CurrencyConverterUseCase @Inject constructor(
                     if (rate.code == newBase.code) {
                         newBase.copy()
                     } else {
-                        rate.copy(value = (newBase.value / newBaseRatioToLoadedBase.value * rate.value).round())
+                        rate.copy(value = (newBase.value / newBaseRatioToLoadedBase.value * rate.value))
                     }
                 }
             } else {
-                map { it.copy(value = (newBase.value * it.value).round()) }
+                map { it.copy(value = (newBase.value * it.value)) }
             }
 
     private fun List<Rate>.sortBasedOnPreviousOrder(newBase: Rate, previous: List<Rate>): List<Rate> {
@@ -65,6 +65,4 @@ class CurrencyConverterUseCase @Inject constructor(
             }
         }
     }
-
-    private fun BigDecimal.round() = setScale(2, RoundingMode.HALF_UP)
 }

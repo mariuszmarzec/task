@@ -8,6 +8,7 @@ import com.marzec.usecase.CurrencyConverterUseCase
 import io.reactivex.Flowable
 import io.reactivex.disposables.Disposable
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.DecimalFormat
 import javax.inject.Inject
 

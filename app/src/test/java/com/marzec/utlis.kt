@@ -9,7 +9,7 @@ fun createRatesResource(base: String? = null, rates: Map<String?, Double?>? = nu
     return RatesResource(base, rates)
 }
 
-fun createRate(code: String = "EUR", value: BigDecimal = BigDecimal.valueOf(1)): Rate {
+fun createRate(code: String = "EUR", value: BigDecimal = BigDecimal("1")): Rate {
     return Rate(code, value)
 }
 
