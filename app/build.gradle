@@ -26,6 +26,10 @@ android {
             useProguard false
         }
     }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
