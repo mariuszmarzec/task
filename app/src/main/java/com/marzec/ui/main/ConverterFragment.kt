@@ -39,7 +39,7 @@ class ConverterFragment : BaseFragment(), ConverterContract.View {
     }
 
     override fun showRates(rates: List<RateViewItem>) {
-        converterAdapter.rates = rates
+        converterAdapter.update(rates)
     }
 
     override fun showError() {

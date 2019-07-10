@@ -1,6 +1,8 @@
 package com.marzec.ui.main
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.method.DigitsKeyListener
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,10 +18,11 @@ import com.marzec.model.Rate
 import com.marzec.model.RateViewItem
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.view_rate.view.*
-import java.math.BigDecimal
+import com.marzec.common.DecimalDigitsInputFilter
+import android.text.InputFilter
 
-typealias OnRateClickListener = (Rate) -> Unit
-typealias OnBaseRateValueChangeListener = (Rate) -> Unit
+typealias OnRateClickListener = (RateViewItem) -> Unit
+typealias OnBaseRateValueChangeListener = (RateViewItem) -> Unit
 
 class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
 
@@ -27,14 +30,7 @@ class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
 
     var onRateClickListener: OnRateClickListener? = null
     var onBaseRateValueChangeListener: OnBaseRateValueChangeListener? = null
-    var rates: List<RateViewItem> = emptyList()
-        set(value) {
-            val old = field
-            val dataClassDiffUtil = RateDiffUtil(old, value)
-            val diffResult = DiffUtil.calculateDiff(dataClassDiffUtil, true)
-            diffResult.dispatchUpdatesTo(this)
-            field = value
-        }
+    private var rates: List<RateViewItem> = emptyList()
 
     init {
         setHasStableIds(true)
@@ -42,7 +38,9 @@ class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        return RateViewHolder(inflater.inflate(R.layout.view_rate, parent, false))
+        return RateViewHolder(inflater.inflate(R.layout.view_rate, parent, false).apply {
+            rateValue.filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(50, 2))
+        })
     }
 
     override fun getItemCount() = rates.size
@@ -63,20 +61,29 @@ class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
         }
     }
 
+    fun update(new: List<RateViewItem>) {
+        val old = rates
+        val dataClassDiffUtil = RateDiffUtil(old, new)
+        val diffResult = DiffUtil.calculateDiff(dataClassDiffUtil, true)
+        diffResult.dispatchUpdatesTo(this)
+        rates = new
+    }
+
     private inner class RateViewHolder(private val rateView: View) : BaseViewHolder(rateView) {
 
         val onClickListener = View.OnClickListener {
             if (adapterPosition > 0) {
-                onRateClickListener?.invoke(rates[adapterPosition].toRate())
+                onRateClickListener?.invoke(rates[adapterPosition])
             }
         }
 
         val onValueListener = object : OnTextChangeListener() {
-            override fun onAfterTextChange(text: String) {
+            override fun  afterTextChanged(editable: Editable?) {
+                val text = editable.toString()
                 if (adapterPosition == 0) {
-                    val rate = rates[adapterPosition]
-                    val newBase = Rate(rate.code, text.toBigDecimal(BigDecimal("0")))
-                    onBaseRateValueChangeListener?.invoke(newBase)
+                    val rate = rates[adapterPosition].copy(value = text)
+                    rates = rates.toMutableList().apply { removeAt(0); add(0, rate) }
+                    onBaseRateValueChangeListener?.invoke(rate)
                 }
             }
         }
@@ -89,12 +96,10 @@ class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
             val rate = rates[position]
             rateView.rateValue.removeTextChangedListener(onValueListener)
             rateView.rateCode.text = rate.code
-            if (rateView.rateValue.text.toString() != rate.value) {
-                rateView.rateValue.setText(rate.value)
-            }
+            rateView.rateValue.setText(rate.value)
             rateView.rateValue.isEnabled = rate.editable
             rateView.countryFlag
-            rateView.countryName.text = rate.info?.name.orEmpty()
+            rateView.currencyName.text = rate.info?.name.orEmpty()
             loadImage(rateView.countryFlag, rate.info?.flagImg)
             rateView.rateValue.addTextChangedListener(onValueListener)
         }
@@ -106,14 +111,12 @@ class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
             with(itemView.rateValue) {
                 removeTextChangedListener(onValueListener)
                 isEnabled = enabled
-                if (rateView.rateValue.text.toString() != value) {
-                    value?.let { setText(it) }
-                }
+                value?.let { setText(it) }
                 addTextChangedListener(onValueListener)
             }
             code?.let { itemView.rateCode.text = it }
             if (payloadChange.containsKey(RateDiffUtil.KEY_CURRENCY_NAME)) {
-                itemView.countryName.text = payloadChange.getString(RateDiffUtil.KEY_CURRENCY_NAME).orEmpty()
+                itemView.currencyName.text = payloadChange.getString(RateDiffUtil.KEY_CURRENCY_NAME).orEmpty()
             }
             if (payloadChange.containsKey(RateDiffUtil.KEY_COUNTRY_FLAG)) {
                 loadImage(rateView.countryFlag, payloadChange.getString(RateDiffUtil.KEY_COUNTRY_FLAG))

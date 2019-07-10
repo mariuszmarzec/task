@@ -1,6 +1,9 @@
 package com.marzec
 
+import com.marzec.api.model.CountryResource
+import com.marzec.api.model.CurrencyResource
 import com.marzec.api.model.RatesResource
+import com.marzec.extensions.emptyString
 import com.marzec.model.CurrencyData
 import com.marzec.model.Rate
 import com.marzec.model.RateViewItem
@@ -27,3 +30,20 @@ fun createRateViewItem(
 ): RateViewItem {
     return RateViewItem(code, value, editable, currencyData)
 }
+
+fun createCountryResource(
+        name: String? = null,
+        alpha2Code: String? = null,
+        currencies: List<CurrencyResource?>? = null
+) =
+        CountryResource(name, alpha2Code, currencies)
+
+fun createCurrencyResource(code: String? = null, name: String? = null, symbol: String? = null) =
+        CurrencyResource(code, name, symbol)
+
+fun createCurrencyData(
+        code: String = emptyString(),
+        name: String = emptyString(),
+        symbol: String = emptyString(),
+        flagImg: String = emptyString()
+) = CurrencyData(code, name, symbol, flagImg)

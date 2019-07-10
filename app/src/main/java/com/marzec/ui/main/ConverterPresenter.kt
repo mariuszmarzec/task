@@ -2,6 +2,7 @@ package com.marzec.ui.main
 
 import android.util.Log
 import com.marzec.extensions.ioTransform
+import com.marzec.extensions.toBigDecimal
 import com.marzec.model.CurrencyDataStorage
 import com.marzec.model.Rate
 import com.marzec.model.RateViewItem
@@ -12,6 +13,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.functions.BiFunction
 import java.math.BigDecimal
 import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import javax.inject.Inject
 
 class ConverterPresenter @Inject constructor(
@@ -20,6 +22,7 @@ class ConverterPresenter @Inject constructor(
 ) : ConverterContract.Presenter {
 
     private var defaultRate = Rate("EUR", BigDecimal.valueOf(1))
+    private var baseViewItem: RateViewItem? = null
     private var baseRate: Rate? = null
 
     private var disposable: Disposable? = null
@@ -46,6 +49,7 @@ class ConverterPresenter @Inject constructor(
                             view?.showError()
                         })
         if (baseRate == null) {
+            baseViewItem = null
             baseRate = defaultRate
         }
         baseRate?.let { converterUseCase.setArg(it) }
@@ -58,15 +62,23 @@ class ConverterPresenter @Inject constructor(
                 val df = DecimalFormat().apply {
                     maximumFractionDigits = 2
                     minimumFractionDigits = 0
+                    decimalFormatSymbols = DecimalFormatSymbols.getInstance().apply { decimalSeparator = '.' }
                     isGroupingUsed = false
                 }
                 rates.mapIndexed { index, rate ->
-                    RateViewItem(rate.code, df.format(rate.value), index == 0, currencyData.get(rate.code))
+                    val currentBaseViewItem = baseViewItem
+                    val value = if (index == 0 && currentBaseViewItem != null) {
+                        currentBaseViewItem.value
+                    } else {
+                        df.format(rate.value)
+                    }
+                    RateViewItem(rate.code, value, index == 0, currencyData.get(rate.code))
                 }
             })
 
-    override fun setBaseCurrency(rate: Rate) {
-        baseRate = rate
-        converterUseCase.setArg(rate)
+    override fun setBaseCurrency(rate: RateViewItem) {
+        baseViewItem = rate
+        rate.value.toBigDecimal()?.let { baseRate = Rate(rate.code, it) }
+        baseRate?.let { converterUseCase.setArg(it) }
     }
 }

@@ -1,7 +1,6 @@
 package com.marzec.ui.main
 
 import com.marzec.base.BasePresenter
-import com.marzec.model.Rate
 import com.marzec.model.RateViewItem
 
 interface ConverterContract {
@@ -14,7 +13,7 @@ interface ConverterContract {
 
     interface Presenter : BasePresenter<View> {
         fun load()
-        fun setBaseCurrency(rate: Rate)
+        fun setBaseCurrency(rate: RateViewItem)
 
     }
 }

@@ -5,13 +5,9 @@ import android.text.TextWatcher
 
 abstract class OnTextChangeListener : TextWatcher {
 
-    abstract fun onAfterTextChange(text: String)
+    override fun afterTextChanged(editable: Editable?) = Unit
 
-    final override fun afterTextChanged(editable: Editable?) {
-        onAfterTextChange(editable?.toString().orEmpty())
-    }
+    override fun beforeTextChanged(editable: CharSequence?, start: Int, count: Int, after: Int) = Unit
 
-    final override fun beforeTextChanged(editable: CharSequence?, start: Int, before: Int, count: Int) = Unit
-
-    final override fun onTextChanged(editable: CharSequence?, start: Int, before: Int, count: Int) = Unit
+    override fun onTextChanged(editable: CharSequence?, start: Int, before: Int, count: Int) = Unit
 }
