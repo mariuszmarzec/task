@@ -1,6 +1,7 @@
 package com.marzec.di
 
 import com.marzec.api.ConverterApi
+import com.marzec.api.CountriesApi
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -18,7 +19,8 @@ class ApiModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(httpClient: OkHttpClient): Retrofit = Retrofit.Builder()
+    @Converter
+    fun provideRetrofitForConverter(httpClient: OkHttpClient): Retrofit = Retrofit.Builder()
             .client(httpClient)
             .baseUrl("https://revolut.duckdns.org/")
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
@@ -27,5 +29,19 @@ class ApiModule {
 
     @Provides
     @Singleton
-    fun provideConverterApi(retrofit: Retrofit): ConverterApi = retrofit.create(ConverterApi::class.java)
+    @Countries
+    fun provideRetrofitForCountries(httpClient: OkHttpClient): Retrofit = Retrofit.Builder()
+            .client(httpClient)
+            .baseUrl("https://restcountries.eu/")
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+    @Provides
+    @Singleton
+    fun provideConverterApi(@Converter retrofit: Retrofit): ConverterApi = retrofit.create(ConverterApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideCountriesApi(@Countries retrofit: Retrofit): CountriesApi = retrofit.create(CountriesApi::class.java)
 }

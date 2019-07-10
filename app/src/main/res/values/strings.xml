@@ -5,4 +5,5 @@
     <string name="dialog_title_error">Error!</string>
     <string name="button_try_again">try again</string>
     <string name="button_exit_app">Exit application</string>
+    <string name="content_desc_flag">flag</string>
 </resources>

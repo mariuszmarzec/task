@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.marzec.R
@@ -13,6 +14,7 @@ import com.marzec.common.RateDiffUtil
 import com.marzec.extensions.toBigDecimal
 import com.marzec.model.Rate
 import com.marzec.model.RateViewItem
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.view_rate.view.*
 import java.math.BigDecimal
 
@@ -20,6 +22,8 @@ typealias OnRateClickListener = (Rate) -> Unit
 typealias OnBaseRateValueChangeListener = (Rate) -> Unit
 
 class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
+
+    private val picasso = Picasso.get()
 
     var onRateClickListener: OnRateClickListener? = null
     var onBaseRateValueChangeListener: OnBaseRateValueChangeListener? = null
@@ -89,6 +93,9 @@ class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
                 rateView.rateValue.setText(rate.value)
             }
             rateView.rateValue.isEnabled = rate.editable
+            rateView.countryFlag
+            rateView.countryName.text = rate.info?.name.orEmpty()
+            loadImage(rateView.countryFlag, rate.info?.flagImg)
             rateView.rateValue.addTextChangedListener(onValueListener)
         }
 
@@ -105,6 +112,20 @@ class ConverterAdapter : RecyclerView.Adapter<BaseViewHolder>() {
                 addTextChangedListener(onValueListener)
             }
             code?.let { itemView.rateCode.text = it }
+            if (payloadChange.containsKey(RateDiffUtil.KEY_CURRENCY_NAME)) {
+                itemView.countryName.text = payloadChange.getString(RateDiffUtil.KEY_CURRENCY_NAME).orEmpty()
+            }
+            if (payloadChange.containsKey(RateDiffUtil.KEY_COUNTRY_FLAG)) {
+                loadImage(rateView.countryFlag, payloadChange.getString(RateDiffUtil.KEY_COUNTRY_FLAG))
+            }
+        }
+
+        private fun loadImage(imageView: ImageView, url: String?) {
+            if (!url.isNullOrEmpty()) {
+                picasso.load(url).into(imageView)
+            } else {
+                imageView.setImageDrawable(null)
+            }
         }
     }
 }

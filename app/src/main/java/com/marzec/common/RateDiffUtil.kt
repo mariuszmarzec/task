@@ -28,6 +28,10 @@ class RateDiffUtil(
             putBoolean(KEY_ENABLED, new.editable)
             if (new.code != old.code) putString(KEY_CODE, new.code)
             if (new.value != old.value) putString(KEY_VALUE, new.value)
+            if (new.info != old.info) {
+                putString(KEY_CURRENCY_NAME, new.info?.name)
+                putString(KEY_COUNTRY_FLAG, new.info?.flagImg)
+            }
         }
     }
 
@@ -35,5 +39,7 @@ class RateDiffUtil(
         const val KEY_ENABLED = "KEY_ENABLED"
         const val KEY_CODE = "KEY_CODE"
         const val KEY_VALUE = "KEY_VALUE"
+        const val KEY_CURRENCY_NAME = "KEY_CURRENCY_NAME"
+        const val KEY_COUNTRY_FLAG = "KEY_COUNTRY_FLAG"
     }
 }

@@ -9,14 +9,44 @@
         android:padding="@dimen/rate_view_padding"
         tools:ignore="Autofill">
 
+    <ImageView
+            android:id="@+id/countryFlag"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:scaleType="fitCenter"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:contentDescription="@string/content_desc_flag"
+    />
+
     <TextView
             android:id="@+id/rateCode"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/countryName"
             tools:text="EUR"
+            app:layout_constraintStart_toEndOf="@+id/countryFlag"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+    <TextView
+            android:id="@+id/countryName"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="12sp"
+            app:layout_constraintTop_toBottomOf="@id/rateCode"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="European union"
+            app:layout_constraintStart_toEndOf="@+id/countryFlag"
+            app:layout_constraintEnd_toStartOf="@id/rateValue"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:ellipsize="end"
     />
 
     <EditText

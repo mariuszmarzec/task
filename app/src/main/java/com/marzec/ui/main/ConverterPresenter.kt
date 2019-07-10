@@ -2,18 +2,21 @@ package com.marzec.ui.main
 
 import android.util.Log
 import com.marzec.extensions.ioTransform
+import com.marzec.model.CurrencyDataStorage
 import com.marzec.model.Rate
 import com.marzec.model.RateViewItem
 import com.marzec.usecase.CurrencyConverterUseCase
+import com.marzec.usecase.LoadCurrenciesDataUseCase
 import io.reactivex.Flowable
 import io.reactivex.disposables.Disposable
+import io.reactivex.functions.BiFunction
 import java.math.BigDecimal
-import java.math.RoundingMode
 import java.text.DecimalFormat
 import javax.inject.Inject
 
 class ConverterPresenter @Inject constructor(
-        private val converterUseCase: CurrencyConverterUseCase
+        private val converterUseCase: CurrencyConverterUseCase,
+        private val loadCurrenciesDataUseCase : LoadCurrenciesDataUseCase
 ) : ConverterContract.Presenter {
 
     private var defaultRate = Rate("EUR", BigDecimal.valueOf(1))
@@ -48,17 +51,19 @@ class ConverterPresenter @Inject constructor(
         baseRate?.let { converterUseCase.setArg(it) }
     }
 
-    private fun loadCurrencies() = converterUseCase.get()
-            .map { rates ->
+    private fun loadCurrencies() = Flowable.combineLatest(
+            converterUseCase.get(),
+            loadCurrenciesDataUseCase.get(),
+            BiFunction { rates: List<Rate>, currencyData: CurrencyDataStorage ->
                 val df = DecimalFormat().apply {
                     maximumFractionDigits = 2
                     minimumFractionDigits = 0
                     isGroupingUsed = false
                 }
                 rates.mapIndexed { index, rate ->
-                    RateViewItem(rate.code, df.format(rate.value), index == 0)
+                    RateViewItem(rate.code, df.format(rate.value), index == 0, currencyData.get(rate.code))
                 }
-            }
+            })
 
     override fun setBaseCurrency(rate: Rate) {
         baseRate = rate

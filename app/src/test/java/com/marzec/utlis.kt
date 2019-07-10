@@ -1,6 +1,7 @@
 package com.marzec
 
 import com.marzec.api.model.RatesResource
+import com.marzec.model.CurrencyData
 import com.marzec.model.Rate
 import com.marzec.model.RateViewItem
 import com.marzec.model.Rates
@@ -21,7 +22,8 @@ fun createRates(base: Rate = createRate(), currencies: List<Rate> = listOf(creat
 fun createRateViewItem(
         code: String = "EUR",
         value: String = "1",
-        editable: Boolean = false
+        editable: Boolean = false,
+        currencyData: CurrencyData? = null
 ): RateViewItem {
-    return RateViewItem(code, value, editable)
+    return RateViewItem(code, value, editable, currencyData)
 }
