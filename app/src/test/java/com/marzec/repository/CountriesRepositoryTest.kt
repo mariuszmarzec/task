@@ -19,9 +19,8 @@ internal class CountriesRepositoryTest {
 
     @Test
     fun getCountriesData_CorruptedData_SuccessLoad() {
-        val zlotyCurrency = createCurrencyResource("PLN", "Polish zloty", "zł")
         whenever(api.getAllCountries()).thenReturn(Single.just(listOf(
-                createCountryResource("Poland", "pln", currencies = listOf(zlotyCurrency)),
+                createCountryResource("Poland", "pl", currencies = listOf(createCurrencyResource("PLN", "Polish zloty", "zł"))),
                 createCountryResource("European Union", currencies = listOf(createCurrencyResource("EUR", "Euro"))),
                 createCountryResource("None", currencies = listOf(createCurrencyResource(""))),
                 createCountryResource(null, currencies = listOf(createCurrencyResource("USD")))
@@ -29,8 +28,9 @@ internal class CountriesRepositoryTest {
         repository.getCountriesData()
                 .test()
                 .assertValue(listOf(
-                        createCurrencyData("pln", "Polish zloty", "zł", "https://www.countryflags.io/pl/shiny/64.png"),
-                        createCurrencyData("EUR", "Euro", "https://www.countryflags.io/eur/shiny/64.png")
+                        createCurrencyData("PLN", "Polish zloty", "zł", "https://www.countryflags.io/pl/shiny/64.png"),
+                        createCurrencyData("EUR", "Euro"),
+                        createCurrencyData("USD")
                 ))
     }
 }

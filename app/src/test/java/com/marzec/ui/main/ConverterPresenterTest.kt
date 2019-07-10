@@ -3,8 +3,10 @@ package com.marzec.ui.main
 import com.marzec.TestSchedulersRule
 import com.marzec.createRate
 import com.marzec.createRateViewItem
+import com.marzec.model.CurrencyDataStorage
 import com.marzec.model.Rate
 import com.marzec.usecase.CurrencyConverterUseCase
+import com.marzec.usecase.LoadCurrenciesDataUseCase
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -26,13 +28,15 @@ class ConverterPresenterTest {
 
     val view = mock<ConverterContract.View>()
     val useCase: CurrencyConverterUseCase = mock()
-    val presenter = ConverterPresenter(useCase)
+    val loadCurrenciesDataUseCase: LoadCurrenciesDataUseCase = mock()
+    val presenter = ConverterPresenter(useCase, loadCurrenciesDataUseCase)
 
     val subject = PublishSubject.create<List<Rate>>()
 
     @BeforeEach
     fun setUp() {
         Locale.setDefault(Locale.US)
+        whenever(loadCurrenciesDataUseCase.get()).thenReturn(Flowable.just(CurrencyDataStorage(emptyMap())))
     }
 
     @Test
@@ -68,7 +72,7 @@ class ConverterPresenterTest {
     @Test
     fun setBaseCurrency() {
         presenter.attach(view)
-        presenter.setBaseCurrency(createRate(code = "USD", value = BigDecimal("1")))
+        presenter.setBaseCurrency(createRateViewItem("USD", "1", true))
 
         verify(useCase).setArg(createRate(code = "USD", value = BigDecimal("1")))
         verifyNoMoreInteractions(view)
