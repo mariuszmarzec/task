@@ -15,6 +15,7 @@ class LoadRatesUseCase @Inject constructor(
         private val converterRepository: ConverterRepository
 ) : BaseUseCase<Rate, Rates> {
 
+    private val cache = BehaviorSubject.create<Rates>().toSerialized()
     private val currentBase = BehaviorSubject.create<Rate>()
 
     override fun setArg(arg: Rate) {
@@ -24,7 +25,10 @@ class LoadRatesUseCase @Inject constructor(
     override fun get(): Flowable<Rates> {
         return currentBase.toFlowable(BackpressureStrategy.LATEST).switchMap { rate ->
             Flowable.interval(1, TimeUnit.SECONDS).startWith(0).switchMap {
-                converterRepository.getRates(rate.code).toFlowable()
+                converterRepository.getRates(rate.code)
+                        .doOnSuccess { cache.onNext(it) }
+                        .onErrorResumeNext { cache.firstOrError() }
+                        .toFlowable()
                         .subscribeOn(Schedulers.io())
             }
         }
