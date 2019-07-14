@@ -38,6 +38,7 @@ class ConverterPresenter @Inject constructor(
     }
 
     override fun load() {
+        disposable?.dispose()
         disposable = loadCurrencies()
                 .ioTransform()
                 .subscribe(
