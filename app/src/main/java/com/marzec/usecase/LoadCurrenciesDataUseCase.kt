@@ -4,21 +4,15 @@ import com.marzec.base.BaseUseCase
 import com.marzec.model.CurrencyData
 import com.marzec.model.CurrencyDataStorage
 import com.marzec.repository.CountriesRepository
-import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
-import io.reactivex.subjects.ReplaySubject
+import io.reactivex.Single
 import javax.inject.Inject
 
 class LoadCurrenciesDataUseCase @Inject constructor(
         private val countriesRepository: CountriesRepository
 ) : BaseUseCase<Unit, CurrencyDataStorage> {
 
-    private val subject = ReplaySubject.create<CurrencyDataStorage>(1)
-
-    override fun setArg(arg: Unit) = Unit
-
-    override fun get(): Flowable<CurrencyDataStorage> {
-        return if (subject.value == null) {
+    private val flowable = Single.defer {
         countriesRepository.getCountriesData().map { currencies ->
             CurrencyDataStorage(currencies.map { it.code to it }.toMap().toMutableMap().apply {
                 put("EUR", CurrencyData(
@@ -34,10 +28,10 @@ class LoadCurrenciesDataUseCase @Inject constructor(
                         "https://www.countryflags.io/SG/shiny/64.png"
                 ))
             })
-        }.doOnSuccess { subject.onNext(it) }
-                .toFlowable()
-        } else {
-            subject.toFlowable(BackpressureStrategy.LATEST)
         }
-    }
+    }.cache()
+
+    override fun setArg(arg: Unit) = Unit
+
+    override fun get() = flowable.toFlowable()
 }
