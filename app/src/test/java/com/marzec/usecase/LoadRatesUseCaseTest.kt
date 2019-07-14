@@ -88,4 +88,25 @@ class LoadRatesUseCaseTest {
         verify(repo, times(1)).getRates(dollarCode)
         verifyNoMoreInteractions(repo)
     }
+
+    @Test
+    fun get_ErrorWhileNextLoading_LoadingFromCache() {
+        val testScheduler = TestScheduler()
+        RxJavaPlugins.setComputationSchedulerHandler { testScheduler }
+
+        whenever(repo.getRates(baseCurrency)).thenReturn(Single.just(rates))
+
+        useCase.setArg(createRate(baseCurrency))
+        val testSubscriber = useCase.get()
+                .subscribeOn(testScheduler)
+                .observeOn(testScheduler)
+                .test()
+
+        testScheduler.triggerActions()
+        testSubscriber.assertValue(rates)
+
+        whenever(repo.getRates(baseCurrency)).thenReturn(Single.error(Throwable()))
+        testScheduler.advanceTimeTo(1, TimeUnit.SECONDS)
+        testSubscriber.assertValueAt(0, rates)
+    }
 }
