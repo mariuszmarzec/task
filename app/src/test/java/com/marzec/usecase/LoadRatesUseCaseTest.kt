@@ -5,6 +5,7 @@ import com.marzec.createRate
 import com.marzec.createRates
 import com.marzec.repository.ConverterRepository
 import com.nhaarman.mockitokotlin2.*
+import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.schedulers.TestScheduler
 import org.junit.jupiter.api.BeforeEach
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.math.BigDecimal
 import java.util.concurrent.TimeUnit
 import io.reactivex.plugins.RxJavaPlugins
-
+import java.net.UnknownHostException
 
 
 @ExtendWith(TestSchedulersRule::class)
@@ -108,5 +109,23 @@ class LoadRatesUseCaseTest {
         whenever(repo.getRates(baseCurrency)).thenReturn(Single.error(Throwable()))
         testScheduler.advanceTimeTo(1, TimeUnit.SECONDS)
         testSubscriber.assertValueAt(0, rates)
+    }
+
+    @Test
+    fun get_ErrorWhileFirstLoading_ReturnError() {
+        val testScheduler = TestScheduler()
+        RxJavaPlugins.setComputationSchedulerHandler { testScheduler }
+
+        whenever(repo.getRates(baseCurrency)).thenReturn(Single.error(UnknownHostException()))
+
+        useCase.setArg(createRate(baseCurrency))
+        val testSubscriber = useCase.get()
+                .subscribeOn(testScheduler)
+                .observeOn(testScheduler)
+                .test()
+
+        testScheduler.triggerActions()
+        testScheduler.advanceTimeBy(100, TimeUnit.MILLISECONDS)
+        testSubscriber.assertError { it is UnknownHostException }
     }
 }

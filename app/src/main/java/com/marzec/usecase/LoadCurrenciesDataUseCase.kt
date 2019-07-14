@@ -1,5 +1,6 @@
 package com.marzec.usecase
 
+import cacheButRetryOnError
 import com.marzec.base.BaseUseCase
 import com.marzec.model.CurrencyData
 import com.marzec.model.CurrencyDataStorage
@@ -12,7 +13,7 @@ class LoadCurrenciesDataUseCase @Inject constructor(
         private val countriesRepository: CountriesRepository
 ) : BaseUseCase<Unit, CurrencyDataStorage> {
 
-    private val flowable = Single.defer {
+    private val single = Single.defer {
         countriesRepository.getCountriesData().map { currencies ->
             CurrencyDataStorage(currencies.map { it.code to it }.toMap().toMutableMap().apply {
                 put("EUR", CurrencyData(
@@ -29,9 +30,11 @@ class LoadCurrenciesDataUseCase @Inject constructor(
                 ))
             })
         }
-    }.cache()
+    }.cacheButRetryOnError()
 
     override fun setArg(arg: Unit) = Unit
 
-    override fun get() = flowable.toFlowable()
+    override fun get(): Flowable<CurrencyDataStorage> {
+        return single.toFlowable()
+    }
 }
