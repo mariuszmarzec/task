@@ -9,6 +9,7 @@ import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.BehaviorSubject
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 
 class CurrencyConverterUseCase @Inject constructor(
@@ -16,7 +17,7 @@ class CurrencyConverterUseCase @Inject constructor(
 ) : BaseUseCase<Rate, List<Rate>> {
 
     private val currentBase = BehaviorSubject.create<Rate>()
-    private var initValue = BehaviorSubject.create<List<Rate>>().apply { onNext(emptyList()) }
+    private var initValue: AtomicReference<List<Rate>> = AtomicReference(emptyList())
 
     override fun setArg(arg: Rate) {
         currentBase.onNext(arg)
@@ -28,14 +29,14 @@ class CurrencyConverterUseCase @Inject constructor(
                 currentBase.toFlowable(BackpressureStrategy.LATEST),
                 loadRatesUseCase.get(), BiFunction { base: Rate, rates: Rates ->
             Pair(base, rates)
-        }).scan(initValue.value.orEmpty(), BiFunction { previous, (newBase, rates) ->
+        }).scan(initValue.get(), { previous, (newBase, rates) ->
             val newBaseRatioToOldBase = rates.currencies.firstOrNull {
                 newBase.code == it.code
             }
             rates.currencies
                     .calcRates(newBase, rates.base, newBaseRatioToOldBase)
                     .sortBasedOnPreviousOrder(newBase, previous)
-        }).doOnNext { initValue.onNext(it) }
+        }).doOnNext { initValue.set(it) }
     }
 
     private fun List<Rate>.calcRates(newBase: Rate, loadedBase: Rate, newBaseRatioToLoadedBase: Rate?) =
